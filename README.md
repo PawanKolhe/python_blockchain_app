@@ -83,6 +83,12 @@ curl -X POST \
   -d '{"node_address": "http://127.0.0.1:8000"}'
 ```
 
+_or_
+
+**Use this frontend:**  
+Go to http://127.0.0.1:8001/register_with and enter `http://127.0.0.1:8000` in the form and submit.
+
+
 This will make the node at port 8000 aware of the nodes at port 8001 and 8002, and make the newer nodes sync the chain with the node 8000, so that they are able to actively participate in the mining process post registration.
 
 To update the node with which the frontend application syncs (default is localhost port 8000), change `CONNECTED_NODE_ADDRESS` field in the [views.py](/app/views.py) file.
@@ -94,4 +100,4 @@ $ curl -X GET http://localhost:8001/chain
 $ curl -X GET http://localhost:8002/chain
 ```
 
-*PS: For consulting, you can reach out to me via Codementor (use [this link](https://www.codementor.io/satwikkansal?partner=satwikkansal) for free 10$ credits).*
+_Project by [satwikkansal](https://github.com/satwikkansal)_
