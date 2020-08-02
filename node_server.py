@@ -2,7 +2,7 @@ from hashlib import sha256
 import json
 import time
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 import requests
 
 
@@ -209,35 +209,39 @@ def register_new_peers():
     return get_chain()
 
 
-@app.route('/register_with', methods=['POST'])
+@app.route('/register_with', methods=['GET', 'POST'])
 def register_with_existing_node():
-    """
-    Internally calls the `register_node` endpoint to
-    register current node with the node specified in the
-    request, and sync the blockchain as well as peer data.
-    """
-    node_address = request.get_json()["node_address"]
-    if not node_address:
-        return "Invalid data", 400
+    if(request.method == 'POST'):
+        """
+        Internally calls the `register_node` endpoint to
+        register current node with the node specified in the
+        request, and sync the blockchain as well as peer data.
+        """
+        node_address = request.get_json()["node_address"]
+        if not node_address:
+            return "Invalid data", 400
 
-    data = {"node_address": request.host_url}
-    headers = {'Content-Type': "application/json"}
+        data = {"node_address": request.host_url}
+        headers = {'Content-Type': "application/json"}
 
-    # Make a request to register with remote node and obtain information
-    response = requests.post(node_address + "/register_node",
-                             data=json.dumps(data), headers=headers)
+        # Make a request to register with remote node and obtain information
+        response = requests.post(node_address + "/register_node",
+                                data=json.dumps(data), headers=headers)
 
-    if response.status_code == 200:
-        global blockchain
-        global peers
-        # update chain and the peers
-        chain_dump = response.json()['chain']
-        blockchain = create_chain_from_dump(chain_dump)
-        peers.update(response.json()['peers'])
-        return "Registration successful", 200
+        if response.status_code == 200:
+            global blockchain
+            global peers
+            # update chain and the peers
+            chain_dump = response.json()['chain']
+            blockchain = create_chain_from_dump(chain_dump)
+            peers.update(response.json()['peers'])
+            return "Registration successful", 200
+        else:
+            # if something goes wrong, pass it on to the API response
+            return response.content, response.status_code
+
     else:
-        # if something goes wrong, pass it on to the API response
-        return response.content, response.status_code
+        return render_template('register_with.html')
 
 
 def create_chain_from_dump(chain_dump):
@@ -296,7 +300,7 @@ def consensus():
     current_len = len(blockchain.chain)
 
     for node in peers:
-        response = requests.get('{}chain'.format(node))
+        response = requests.get('{}/chain'.format(node))
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):

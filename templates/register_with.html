@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Node</title>
+</head>
+<body>
+  <h1>Register Node</h1>
+  <form id="form">
+    <input type="text" name="node_address" id="node_address">
+    <button type="submit">Register With Address</button>
+  </form>
+
+  <script>
+    const node_address = document.querySelector('#node_address');
+    const form_element = document.querySelector('#form');
+
+    form_element.addEventListener('submit', (event) => {
+      event.preventDefault();
+      console.log(postData('/register_with', {
+        node_address: node_address.value
+      }));
+    });
+
+    async function postData(url = '', data = {}) {
+      // Default options are marked with *
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    }
+  </script>
+</body>
+</html>
